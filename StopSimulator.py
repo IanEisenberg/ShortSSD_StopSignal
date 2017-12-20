@@ -28,6 +28,7 @@ class StopSimulator(object):
             wald = x;
         else:
             wald = (mu**2)/x
+        #wald = np.random.wald(mu, lam) not working for some reason
         return wald
         
     def get_go_trials(self, ntrials=100):
@@ -83,7 +84,7 @@ for SSD, rt in all_trials.query('SSD>-1').groupby('SSD').rt:
     rt = [i for i in rt if not pd.isnull(i)]
     sns.kdeplot(rt, cumulative=True, label=SSD, linewidth=3)
 sns.kdeplot(all_trials.query('SSD==-1').rt, cumulative=True, label='Go', 
-            linewidth=5, linestyle='..', color='red')
+            linewidth=5, linestyle=':', color='red')
 plt.legend(title = 'SSD')
 plt.xlabel('Time (ms)')
 plt.ylabel('Density')
