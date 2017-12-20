@@ -58,7 +58,7 @@ class StopSimulator(object):
             stopped = df.apply(lambda x: min(x.stop_time, x.correct_RT, x.incorrect_RT) == x.stop_time, axis=1)
             df.insert(0, 'stopped', stopped)
             # otherwise calculate RT
-            df.rt = df.apply(lambda x: x.rt if x.stopped else np.nan, axis=1)
+            df.rt = df.apply(lambda x: x.rt if not x.stopped else np.nan, axis=1)
             df = df.reindex(sorted(df.columns), axis=1)
             stop_df = pd.concat([stop_df, df], axis=0)
         return stop_df
@@ -70,7 +70,7 @@ class StopSimulator(object):
         all_trials.SSD.replace(np.nan, -1, inplace=True)
         return all_trials
 
-np.random.seed(10101)
+np.random.seed(5)
 exp = StopSimulator()
 all_trials = exp.get_all_trials(1000)
 
@@ -79,9 +79,11 @@ sns.set_context('poster')
 
 # SSD cumulative density plots
 plt.figure(figsize=(12,8))
-for SSD, rt in all_trials.groupby('SSD').rt:
+for SSD, rt in all_trials.query('SSD>-1').groupby('SSD').rt:
     rt = [i for i in rt if not pd.isnull(i)]
-    sns.kdeplot(rt, cumulative=True, label=SSD, linewidth=5)
+    sns.kdeplot(rt, cumulative=True, label=SSD, linewidth=3)
+sns.kdeplot(all_trials.query('SSD==-1').rt, cumulative=True, label='Go', 
+            linewidth=5, linestyle='..', color='red')
 plt.legend(title = 'SSD')
 plt.xlabel('Time (ms)')
 plt.ylabel('Density')
